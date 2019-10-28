@@ -1,11 +1,14 @@
 package com.metrology.metrics;
 
+import com.metrology.metrics.model.LanguageAnalyzer;
+
 public class App {
-    private String getGreeting() {
-        return "Hello world.";
-    }
 
     public static void main(String[] args) {
-        System.out.println(new App().getGreeting());
+        LanguageAnalyzer test = new LanguageAnalyzer("kdkfj /* adfa\n d*/ //dsfadfa\n asdfas");
+        test.deleteAllComments();
+
+        System.out.println(test.getProgramCode());
     }
+
 }
