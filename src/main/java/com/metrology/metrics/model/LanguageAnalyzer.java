@@ -1,6 +1,5 @@
 package com.metrology.metrics.model;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class LanguageAnalyzer {
@@ -11,15 +10,42 @@ public class LanguageAnalyzer {
         this.programCode = programCode;
     }
 
-    public void deleteAllComments() {
+    public void parseProgram() {
+        deleteAllComments();
+        deleteControlCharacters();
+        deleteAllTextLiterals();
+    }
+
+    private void deleteAllComments() {
         final String singleLineRegEx = "\\s*//.*";
         final String multiLineRegEx = "\\s*/\\*[^*]*\\*+(?:[^/*][^*]*\\*+)*/";
 
-        Matcher singleLineMatcher = Pattern.compile(singleLineRegEx).matcher(programCode);
-        programCode = singleLineMatcher.replaceAll("");
+        programCode = Pattern.compile(singleLineRegEx)
+                .matcher(programCode).replaceAll("");
 
-        Matcher multiLineMatcher = Pattern.compile(multiLineRegEx).matcher(programCode);
-        programCode = multiLineMatcher.replaceAll("");
+        programCode = Pattern.compile(multiLineRegEx)
+                .matcher(programCode).replaceAll("");
+    }
+
+    private void deleteControlCharacters() {
+        programCode = programCode.replaceAll("\t", " ");
+        programCode = programCode.replaceAll("\n", " ");
+        programCode = programCode.replaceAll("\r", " ");
+    }
+
+    private void deleteAllTextLiterals() {
+        final String stringLiteralRegEx = "\"[^\"]*\"";
+        final String singleStringLiteralRegEx = "`[^`]*`";
+        final String runeLiteralRegEx = "'[^']*'";
+
+        programCode = Pattern.compile(stringLiteralRegEx)
+                .matcher(programCode).replaceAll(" ");
+
+        programCode = Pattern.compile(singleStringLiteralRegEx)
+                .matcher(programCode).replaceAll(" ");
+
+        programCode = Pattern.compile(runeLiteralRegEx)
+                .matcher(programCode).replaceAll(" ");
     }
 
     public String getProgramCode() {
