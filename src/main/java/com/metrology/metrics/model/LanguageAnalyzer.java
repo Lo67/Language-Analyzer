@@ -1,10 +1,13 @@
 package com.metrology.metrics.model;
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class LanguageAnalyzer {
 
     private String programCode;
+
+    private Metrics metrics = new Metrics();
 
     public LanguageAnalyzer(String programCode) {
         this.programCode = programCode;
@@ -14,6 +17,7 @@ public class LanguageAnalyzer {
         deleteAllComments();
         deleteControlCharacters();
         deleteAllTextLiterals();
+        calculateConditionalStatementsCount();
     }
 
     private void deleteAllComments() {
@@ -46,6 +50,30 @@ public class LanguageAnalyzer {
 
         programCode = Pattern.compile(runeLiteralRegEx)
                 .matcher(programCode).replaceAll(" ");
+    }
+
+    private void calculateConditionalStatementsCount() {
+        int ifCount = calculateStatementsCount("if");
+        int switchCount = calculateStatementsCount("switch");
+        int forCount = calculateStatementsCount("for");
+        int selectCount = calculateStatementsCount("select");
+
+        int conditionalStatementsCount = ifCount + switchCount + forCount + selectCount;
+        metrics.setConditionalStatementsCount(conditionalStatementsCount);
+    }
+
+    private int calculateStatementsCount(String statement) {
+        Matcher matcher = Pattern
+                .compile("(?:^| )" + statement + "(?:$| )",
+                        Pattern.CASE_INSENSITIVE)
+                .matcher(programCode);
+
+        int count = 0;
+        while (matcher.find()) {
+            count++;
+        }
+
+        return count;
     }
 
     public String getProgramCode() {
