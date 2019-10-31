@@ -86,7 +86,7 @@ public class LanguageAnalyzer {
 
         while (curlyBracesCount != 0) {
             if (codeText.charAt(charIndex) == '{') {
-                curlyBracesCount++;       // или лучше ++curlyBracesCount? или не важно?
+                curlyBracesCount++;
             } else if (codeText.charAt(charIndex) == '}') {
                 curlyBracesCount--;
             }
