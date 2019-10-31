@@ -20,6 +20,7 @@ public class LanguageAnalyzer {
         keepFuncBodiesInCode();
         calculateConditionalStatementsCount();
         calculateGeneralOperatorsCount();
+        calculateRelativeComplexity();
     }
 
     private void deleteAllComments() {
@@ -149,6 +150,22 @@ public class LanguageAnalyzer {
         }
 
         return operatorsCount;
+    }
+
+    private void calculateRelativeComplexity() {
+        int conditionalStatementsCount = metrics.getConditionalStatementsCount();
+        int statementsAndOperatorsCount =
+                conditionalStatementsCount + metrics.getGeneralOperatorsCount();
+
+        if (statementsAndOperatorsCount == 0) {
+            metrics.setProgramRelativeComplexity(0);
+            return;
+        }
+
+        double relativeComplexity =
+                (double) conditionalStatementsCount / statementsAndOperatorsCount;
+
+        metrics.setProgramRelativeComplexity(relativeComplexity);
     }
 
     public String getProgramCode() {
