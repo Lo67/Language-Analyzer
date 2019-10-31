@@ -54,7 +54,7 @@ public class LanguageAnalyzer {
     }
 
     private void calculateConditionalStatementsCount() {
-        String[] statements = new String[] {
+        String[] statements = new String[]{
                 "if", "switch", "for", "select"
         };
 
@@ -81,7 +81,7 @@ public class LanguageAnalyzer {
     }
 
     private void calculateGeneralOperatorsCount() {
-        String[] operators = new String[] {
+        String[] operators = new String[]{
                 "||", "&&", "==", "!=", "<=",
                 ">=", "<<", ">>", "&^", "<-",
                 "<", ">", "+", "-", "|", "^",
@@ -107,7 +107,6 @@ public class LanguageAnalyzer {
 
         return operatorsCount;
     }
-
 
     public String getProgramCode() {
         return programCode;
