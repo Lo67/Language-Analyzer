@@ -17,6 +17,7 @@ public class LanguageAnalyzer {
         deleteAllComments();
         deleteControlCharacters();
         deleteAllTextLiterals();
+        keepFuncBodiesInCode();
         calculateConditionalStatementsCount();
         calculateGeneralOperatorsCount();
     }
@@ -51,6 +52,48 @@ public class LanguageAnalyzer {
 
         programCode = Pattern.compile(runeLiteralRegEx)
                 .matcher(programCode).replaceAll(" ");
+    }
+
+    private void keepFuncBodiesInCode() {
+        /* Алгоритм:
+            1) Найти объявление функции
+            2) Убрать из текста символы до тела найденой функции
+            3) Посчитать размер тела функции
+            4) Добавить тело функции в буфер
+            5) Пока в тексте осталось объявление функции, повторять с шага 1
+            6) Перезаписать текст значением из буфера
+        */
+
+        StringBuilder codeText = new StringBuilder(programCode);
+        StringBuilder codeBuff = new StringBuilder(programCode.length());
+
+        Pattern funcPattern = Pattern.compile("(func [^{]*)");
+        Matcher funcMatcher = funcPattern.matcher(programCode);
+
+        while (funcMatcher.find()) {
+            codeText.delete(0, funcMatcher.start() + funcMatcher.group().length());
+            int funcBodySize = countFuncBodySize(codeText);
+            String funcBody = codeText.substring(0, funcBodySize);
+            codeBuff.append(funcBody);
+            funcMatcher = funcPattern.matcher(codeText.toString());
+        }
+        programCode = codeBuff.toString();
+    }
+
+    private int countFuncBodySize(StringBuilder codeText) {
+        int curlyBracesCount = 1;
+        int charIndex = 1;
+
+        while (curlyBracesCount != 0) {
+            if (codeText.charAt(charIndex) == '{') {
+                curlyBracesCount++;
+            } else if (codeText.charAt(charIndex) == '}') {
+                curlyBracesCount--;
+            }
+
+            charIndex++;
+        }
+        return charIndex;
     }
 
     private void calculateConditionalStatementsCount() {
