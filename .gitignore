@@ -1,4 +1,5 @@
 # Build and IDE files
+.txt
 .gradle
 build
 .idea/**
