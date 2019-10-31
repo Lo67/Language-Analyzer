@@ -7,6 +7,8 @@ public class LanguageAnalyzer {
 
     private String programCode;
 
+    private Metrics metrics = new Metrics();
+
     public LanguageAnalyzer(String programCode) {
         this.programCode = programCode;
     }
@@ -16,6 +18,8 @@ public class LanguageAnalyzer {
         deleteControlCharacters();
         deleteAllTextLiterals();
         keepFuncBodiesInCode();
+        calculateConditionalStatementsCount();
+        calculateGeneralOperatorsCount();
     }
 
     private void deleteAllComments() {
@@ -49,6 +53,7 @@ public class LanguageAnalyzer {
         programCode = Pattern.compile(runeLiteralRegEx)
                 .matcher(programCode).replaceAll(" ");
     }
+
 
     private int countFuncBodySize(StringBuilder codeText) {
         int curlyBracesCount = 1;
@@ -93,6 +98,60 @@ public class LanguageAnalyzer {
             funcMatcher = funcPattern.matcher(codeText.toString());
         }
         programCode = codeBuff.toString();
+
+    private void calculateConditionalStatementsCount() {
+        String[] statements = new String[]{
+                "if", "switch", "for", "select"
+        };
+
+        int statementsCount = 0;
+        for (String statement : statements) {
+            statementsCount += calculateStatementsCount(statement);
+        }
+
+        metrics.setConditionalStatementsCount(statementsCount);
+    }
+
+    private int calculateStatementsCount(String statement) {
+        Matcher matcher = Pattern
+                .compile("(?:^| )" + statement + "(?:$| )",
+                        Pattern.CASE_INSENSITIVE)
+                .matcher(programCode);
+
+        int count = 0;
+        while (matcher.find()) {
+            count++;
+        }
+
+        return count;
+    }
+
+    private void calculateGeneralOperatorsCount() {
+        String[] operators = new String[]{
+                "||", "&&", "==", "!=", "<=",
+                ">=", "<<", ">>", "&^", "<-",
+                "<", ">", "+", "-", "|", "^",
+                "*", "/", "%", "&", "!"
+        };
+
+        int operatorsCount = 0;
+        for (String operator : operators) {
+            operatorsCount += calculateOperatorsCount(operator);
+        }
+
+        metrics.setGeneralOperatorsCount(operatorsCount);
+    }
+
+    private int calculateOperatorsCount(String operator) {
+        int operatorsCount = 0;
+        int indexOfOperator = programCode.indexOf(operator);
+
+        while (indexOfOperator != -1) {
+            operatorsCount++;
+            indexOfOperator = programCode.indexOf(operator, indexOfOperator + 1);
+        }
+
+        return operatorsCount;
     }
 
     public String getProgramCode() {
