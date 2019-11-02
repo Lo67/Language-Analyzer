@@ -1,19 +1,18 @@
 plugins {
     id 'java'
     id 'application'
+    id 'org.openjfx.javafxplugin' version '0.0.8'
 }
 
 repositories {
     mavenCentral()
 }
 
-dependencies {
+javafx {
+    version = "11"
+    modules = [ 'javafx.controls', 'javafx.fxml' ]
 }
 
 application {
     mainClassName = 'com.metrology.metrics.App'
-}
-
-run {
-    standardInput = System.in
 }

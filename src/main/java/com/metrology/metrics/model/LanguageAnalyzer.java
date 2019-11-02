@@ -168,8 +168,8 @@ public class LanguageAnalyzer {
         metrics.setProgramRelativeComplexity(relativeComplexity);
     }
 
-    public String getProgramCode() {
-        return programCode;
+    public Metrics getMetrics() {
+        return metrics;
     }
 
 }
