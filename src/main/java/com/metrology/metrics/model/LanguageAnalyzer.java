@@ -161,7 +161,8 @@ public class LanguageAnalyzer {
             processedText.insert(bodyEndIndex, "}");
 
             replaceCaseOrDefault(processedText, bodyStartIndex, bodyEndIndex);
-            processedText.replace(statementsMatcher.start(), statementsMatcher.start() + statementsMatcher.group().length(), "s ");
+            processedText.replace(statementsMatcher.start(),
+                    statementsMatcher.start() + statementsMatcher.group().length(), "sw ");
             statementsMatcher = statementsPattern.matcher(processedText);
         }
 
