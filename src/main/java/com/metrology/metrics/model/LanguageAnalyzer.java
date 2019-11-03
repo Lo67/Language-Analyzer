@@ -10,7 +10,7 @@ public class LanguageAnalyzer {
     private Metrics metrics = new Metrics();
 
     public LanguageAnalyzer(String programCode) {
-        this.programCode = programCode;
+        this.programCode = programCode.toLowerCase();
     }
 
     public void parseProgram() {
@@ -21,6 +21,7 @@ public class LanguageAnalyzer {
         calculateConditionalStatementsCount();
         calculateGeneralOperatorsCount();
         calculateRelativeComplexity();
+        calculateMaxNestingLevel();
     }
 
     private void deleteAllComments() {
@@ -73,28 +74,13 @@ public class LanguageAnalyzer {
 
         while (funcMatcher.find()) {
             codeText.delete(0, funcMatcher.start() + funcMatcher.group().length());
-            int funcBodySize = countFuncBodySize(codeText);
-            String funcBody = codeText.substring(0, funcBodySize);
+            int funcBodySize = calculateBodySize(codeText);
+            String funcBody = codeText.substring(1, funcBodySize - 1);
             codeBuff.append(funcBody);
             funcMatcher = funcPattern.matcher(codeText.toString());
         }
+
         programCode = codeBuff.toString();
-    }
-
-    private int countFuncBodySize(StringBuilder codeText) {
-        int curlyBracesCount = 1;
-        int charIndex = 1;
-
-        while (curlyBracesCount != 0) {
-            if (codeText.charAt(charIndex) == '{') {
-                curlyBracesCount++;
-            } else if (codeText.charAt(charIndex) == '}') {
-                curlyBracesCount--;
-            }
-
-            charIndex++;
-        }
-        return charIndex;
     }
 
     private void calculateConditionalStatementsCount() {
@@ -150,6 +136,122 @@ public class LanguageAnalyzer {
         }
 
         return operatorsCount;
+    }
+
+    private void calculateMaxNestingLevel() {
+        replaceAllCasesByIf();
+
+        programCode = programCode.replaceAll("} else \\{", " ");
+        int resultNestingLevel = calculateMaxNestingLevel(programCode.length() - 1, -1);
+        if (resultNestingLevel > metrics.getMaxNestingLevel()) {
+            metrics.setMaxNestingLevel(resultNestingLevel);
+        }
+    }
+
+    private void replaceAllCasesByIf() {
+        StringBuilder processedText = new StringBuilder(programCode);
+
+        Pattern statementsPattern = Pattern.compile("((?:switch|select) [^{]*)");
+        Matcher statementsMatcher = statementsPattern.matcher(processedText);
+
+        while (statementsMatcher.find()) {
+            int bodyStartIndex = statementsMatcher.start() + statementsMatcher.group().length();
+            int bodySize = calculateBodySize(new StringBuilder(processedText.substring(bodyStartIndex)));
+            int bodyEndIndex = bodyStartIndex + bodySize;
+            processedText.insert(bodyEndIndex, "}");
+
+            replaceCaseOrDefault(processedText, bodyStartIndex, bodyEndIndex);
+            processedText.replace(statementsMatcher.start(), statementsMatcher.start() + statementsMatcher.group().length(), "s ");
+            statementsMatcher = statementsPattern.matcher(processedText);
+        }
+
+        programCode = processedText.toString();
+    }
+
+    private void replaceCaseOrDefault(StringBuilder processedText, int bodyStartIndex, int bodyEndIndex) {
+        boolean isFirstCaseOrDefault = true;
+        Pattern caseDefaultPattern = Pattern.compile("((?:case|default)[^:]*)");
+        Matcher caseDefaultMatcher =
+                caseDefaultPattern.matcher(processedText.substring(bodyStartIndex, bodyEndIndex));
+
+        while (caseDefaultMatcher.find()) {
+            if (isFirstCaseOrDefault) {
+                isFirstCaseOrDefault = false;
+                replaceCaseDefault(processedText, bodyStartIndex, caseDefaultMatcher,
+                        " if {", " else {");
+            } else {
+                if (caseDefaultMatcher.group().contains("case")) {
+                    processedText.insert(bodyEndIndex, "}");
+                }
+
+                replaceCaseDefault(processedText, bodyStartIndex, caseDefaultMatcher,
+                        "} else { if {", "} else {");
+            }
+
+            int bodySize = calculateBodySize(new StringBuilder(processedText.substring(bodyStartIndex)));
+            bodyEndIndex = bodyStartIndex + bodySize;
+            caseDefaultMatcher =
+                    caseDefaultPattern.matcher(processedText.substring(bodyStartIndex, bodyEndIndex));
+        }
+    }
+
+    private void replaceCaseDefault(StringBuilder processedText, int bodyStartIndex, Matcher caseDefaultMatcher,
+                                    String caseReplace, String defaultReplace) {
+
+        if (caseDefaultMatcher.group().contains("case")) {
+            processedText.replace(bodyStartIndex + caseDefaultMatcher.start(),
+                    bodyStartIndex + caseDefaultMatcher.start() + caseDefaultMatcher.group().length() + 1,
+                    caseReplace);
+        } else {
+            processedText.replace(bodyStartIndex + caseDefaultMatcher.start(),
+                    bodyStartIndex + caseDefaultMatcher.start() + caseDefaultMatcher.group().length() + 1,
+                    defaultReplace);
+        }
+    }
+
+    private int calculateMaxNestingLevel(int bodyEndIndex, int currentNestingLevel) {
+        StringBuilder processedText = new StringBuilder(programCode.substring(0, bodyEndIndex));
+        Pattern statementsPattern = Pattern.compile("((?:if|for) [^{]*)");
+        Matcher statementsMatcher = statementsPattern.matcher(processedText);
+        boolean isFirstMatch = true;
+
+        while (statementsMatcher.find()) {
+            if (isFirstMatch) {
+                currentNestingLevel++;
+                isFirstMatch = false;
+            } else {
+                bodyEndIndex = programCode.length() - 1;
+            }
+
+            processedText.delete(0, statementsMatcher.start() + statementsMatcher.group().length());
+            programCode = processedText + programCode.substring(bodyEndIndex + 1);
+
+            int currentBodyEndIndex = calculateBodySize(processedText);
+            int resultNestingLevel = calculateMaxNestingLevel(currentBodyEndIndex, currentNestingLevel);
+            if (resultNestingLevel > metrics.getMaxNestingLevel()) {
+                metrics.setMaxNestingLevel(resultNestingLevel);
+            }
+
+            statementsMatcher = statementsPattern.matcher(processedText);
+        }
+
+        return currentNestingLevel;
+    }
+
+    private int calculateBodySize(StringBuilder codeText) {
+        int curlyBracesCount = 1;
+        int charIndex = 1;
+
+        while (curlyBracesCount != 0) {
+            if (codeText.charAt(charIndex) == '{') {
+                curlyBracesCount++;
+            } else if (codeText.charAt(charIndex) == '}') {
+                curlyBracesCount--;
+            }
+
+            charIndex++;
+        }
+        return charIndex;
     }
 
     private void calculateRelativeComplexity() {
