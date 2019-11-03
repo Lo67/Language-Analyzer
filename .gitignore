@@ -1,0 +1,8 @@
+# Build and IDE files
+*.txt
+.gradle
+build
+.idea/**
+!.idea/runConfigurations/
+.idea/runConfigurations/**
+!.idea/runConfigurations/Language_Analyzer.xml
