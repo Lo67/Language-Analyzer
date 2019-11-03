@@ -7,7 +7,7 @@ public class LanguageAnalyzer {
 
     private String programCode;
 
-    private Metrics metrics = new Metrics();
+    private final Metrics metrics = new Metrics();
 
     public LanguageAnalyzer(String programCode) {
         this.programCode = programCode.toLowerCase();
@@ -112,10 +112,12 @@ public class LanguageAnalyzer {
 
     private void calculateGeneralOperatorsCount() {
         String[] operators = new String[]{
-                "||", "&&", "==", "!=", "<=",
-                ">=", "<<", ">>", "&^", "<-",
-                "<", ">", "+", "-", "|", "^",
-                "*", "/", "%", "&", "!"
+                "<<=", ">>=", "&^=", "||", "&&", "==",
+                "!=", "<=", ">=", "<<", ">>", "&^",
+                "+=", "-=", "*=", "/=", "%=", "&=",
+                "|=", "^=", "++", "--", "<-", ":=",
+                "<", ">", "+", "-", "|", "^", "*",
+                "/", "%", "&", "!", "="
         };
 
         int operatorsCount = 0;
@@ -128,11 +130,13 @@ public class LanguageAnalyzer {
 
     private int calculateOperatorsCount(String operator) {
         int operatorsCount = 0;
-        int indexOfOperator = programCode.indexOf(operator);
+        StringBuilder code = new StringBuilder(programCode);
+        int indexOfOperator = code.indexOf(operator);
 
         while (indexOfOperator != -1) {
             operatorsCount++;
-            indexOfOperator = programCode.indexOf(operator, indexOfOperator + 1);
+            code.delete(indexOfOperator, indexOfOperator + operator.length());
+            indexOfOperator = code.indexOf(operator);
         }
 
         return operatorsCount;
@@ -225,9 +229,9 @@ public class LanguageAnalyzer {
             }
 
             processedText.delete(0, statementsMatcher.start() + statementsMatcher.group().length());
-            programCode = processedText + programCode.substring(bodyEndIndex + 1);
+            programCode = processedText + programCode.substring(bodyEndIndex);
 
-            int currentBodyEndIndex = calculateBodySize(processedText);
+            int currentBodyEndIndex = calculateBodySize(processedText) - 1;
             int resultNestingLevel = calculateMaxNestingLevel(currentBodyEndIndex, currentNestingLevel);
             if (resultNestingLevel > metrics.getMaxNestingLevel()) {
                 metrics.setMaxNestingLevel(resultNestingLevel);
