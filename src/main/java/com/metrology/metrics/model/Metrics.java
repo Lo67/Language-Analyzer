@@ -14,15 +14,15 @@ public class Metrics {
         return conditionalStatementsCount;
     }
 
-    public void setConditionalStatementsCount(int conditionalStatementsCount) {
+    void setConditionalStatementsCount(int conditionalStatementsCount) {
         this.conditionalStatementsCount = conditionalStatementsCount;
     }
 
-    public int getGeneralOperatorsCount() {
+    int getGeneralOperatorsCount() {
         return generalOperatorsCount;
     }
 
-    public void setGeneralOperatorsCount(int generalOperatorsCount) {
+    void setGeneralOperatorsCount(int generalOperatorsCount) {
         this.generalOperatorsCount = generalOperatorsCount;
     }
 
@@ -30,7 +30,7 @@ public class Metrics {
         return programRelativeComplexity;
     }
 
-    public void setProgramRelativeComplexity(double programRelativeComplexity) {
+    void setProgramRelativeComplexity(double programRelativeComplexity) {
         this.programRelativeComplexity = programRelativeComplexity;
     }
 
@@ -38,7 +38,7 @@ public class Metrics {
         return maxNestingLevel;
     }
 
-    public void setMaxNestingLevel(int maxNestingLevel) {
+    void setMaxNestingLevel(int maxNestingLevel) {
         this.maxNestingLevel = maxNestingLevel;
     }
 

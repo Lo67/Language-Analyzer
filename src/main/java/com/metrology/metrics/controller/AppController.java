@@ -46,17 +46,16 @@ public class AppController {
         }
     }
 
-    private String readFile (File file) {
+    private String readFile(File file) {
         StringBuilder fileText = new StringBuilder();
 
-        try(BufferedReader bufferedReader = new BufferedReader (new FileReader (file))) {
+        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
             String line;
-            while((line = bufferedReader.readLine()) != null){
+            while ((line = bufferedReader.readLine()) != null) {
                 fileText.append(line).append("\n");
             }
-        }
-        catch(IOException ex){
-            System.out.println(ex.getMessage());
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
         return fileText.toString();
     }
@@ -79,8 +78,6 @@ public class AppController {
 
         value = Integer.toString(metrics.getMaxNestingLevel());
         maxNestingLevelTextField.setText(value);
-
-        System.out.println(metrics.getGeneralOperatorsCount());
     }
 
 }
