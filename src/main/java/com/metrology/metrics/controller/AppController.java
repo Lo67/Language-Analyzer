@@ -29,6 +29,9 @@ public class AppController {
     private TextField conditionalStatementsCountTextField;
 
     @FXML
+    private TextField generalOperatorsCountTextField;
+
+    @FXML
     private TextField relativeComplexityTextField;
 
     @FXML
@@ -36,6 +39,8 @@ public class AppController {
 
     @FXML
     private void onChooseFileButtonClick() {
+        clearGuiFields();
+
         Window window = codeTextArea.getScene().getWindow();
         FileChooser fileChooser = new FileChooser();
         File file = fileChooser.showOpenDialog(window);
@@ -44,6 +49,13 @@ public class AppController {
             String codeText = readFile(file);
             codeTextArea.setText(codeText);
         }
+    }
+
+    private void clearGuiFields() {
+        conditionalStatementsCountTextField.clear();
+        generalOperatorsCountTextField.clear();
+        relativeComplexityTextField.clear();
+        maxNestingLevelTextField.clear();
     }
 
     private String readFile(File file) {
@@ -71,6 +83,9 @@ public class AppController {
     private void drawMetrics(Metrics metrics) {
         String value = Integer.toString(metrics.getConditionalStatementsCount());
         conditionalStatementsCountTextField.setText(value);
+
+        value = Integer.toString(metrics.getGeneralOperatorsCount());
+        generalOperatorsCountTextField.setText(value);
 
         double doubleValue = (double) Math.round(metrics.getProgramRelativeComplexity() * 100) / 100;
         value = Double.toString(doubleValue);
