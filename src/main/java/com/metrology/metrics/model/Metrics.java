@@ -18,7 +18,7 @@ public class Metrics {
         this.conditionalStatementsCount = conditionalStatementsCount;
     }
 
-    int getGeneralOperatorsCount() {
+    public int getGeneralOperatorsCount() {
         return generalOperatorsCount;
     }
 
